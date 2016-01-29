@@ -189,13 +189,24 @@ void Import_OBJ(const char * aFileName, Mesh * aMesh)
   vector<Vector3> verticesArray(vertices.begin(), vertices.end());
   vector<Vector2> texCoordsArray(texCoords.begin(), texCoords.end());
   vector<Vector3> normalsArray(normals.begin(), normals.end());
+  
+  unsigned long vertexCount = verticesArray.size();
+  unsigned int base = 0;
+  if (texCoordsArray.size() > vertexCount) {
+      vertexCount = texCoordsArray.size();
+      base = 1;
+  }
+  if (normalsArray.size() > vertexCount) {
+      vertexCount = normalsArray.size();
+      base = 2;
+  }
 
   // Prepare vertices
-  aMesh->mVertices.resize(verticesArray.size());
+  aMesh->mVertices.resize(vertexCount);
   if(texCoordsArray.size() > 0)
-    aMesh->mTexCoords.resize(verticesArray.size());
+    aMesh->mTexCoords.resize(vertexCount);
   if(normalsArray.size() > 0)
-    aMesh->mNormals.resize(verticesArray.size());
+    aMesh->mNormals.resize(vertexCount);
 
   // Prepare indices
   int triCount = 0;
@@ -237,23 +248,23 @@ void Import_OBJ(const char * aFileName, Mesh * aMesh)
       // Emit one triangle?
       if(nodeCount >= 3)
       {
-        aMesh->mIndices[idx ++] = nodes[0][0];
-        aMesh->mIndices[idx ++] = nodes[1][0];
-        aMesh->mIndices[idx ++] = nodes[2][0];
-        aMesh->mVertices[nodes[0][0]] = verticesArray[nodes[0][0]];
-        aMesh->mVertices[nodes[1][0]] = verticesArray[nodes[1][0]];
-        aMesh->mVertices[nodes[2][0]] = verticesArray[nodes[2][0]];
+        aMesh->mIndices[idx ++] = nodes[0][base];
+        aMesh->mIndices[idx ++] = nodes[1][base];
+        aMesh->mIndices[idx ++] = nodes[2][base];
+        aMesh->mVertices[nodes[0][base]] = verticesArray[nodes[0][0]];
+        aMesh->mVertices[nodes[1][base]] = verticesArray[nodes[1][0]];
+        aMesh->mVertices[nodes[2][base]] = verticesArray[nodes[2][0]];
         if(texCoordsArray.size() > 0)
         {
-          aMesh->mTexCoords[nodes[0][0]] = texCoordsArray[nodes[0][1]];
-          aMesh->mTexCoords[nodes[1][0]] = texCoordsArray[nodes[1][1]];
-          aMesh->mTexCoords[nodes[2][0]] = texCoordsArray[nodes[2][1]];
+          aMesh->mTexCoords[nodes[0][base]] = texCoordsArray[nodes[0][1]];
+          aMesh->mTexCoords[nodes[1][base]] = texCoordsArray[nodes[1][1]];
+          aMesh->mTexCoords[nodes[2][base]] = texCoordsArray[nodes[2][1]];
         }
         if(normalsArray.size() > 0)
         {
-          aMesh->mNormals[nodes[0][0]] = normalsArray[nodes[0][2]];
-          aMesh->mNormals[nodes[1][0]] = normalsArray[nodes[1][2]];
-          aMesh->mNormals[nodes[2][0]] = normalsArray[nodes[2][2]];
+          aMesh->mNormals[nodes[0][base]] = normalsArray[nodes[0][2]];
+          aMesh->mNormals[nodes[1][base]] = normalsArray[nodes[1][2]];
+          aMesh->mNormals[nodes[2][base]] = normalsArray[nodes[2][2]];
         }
       }
     }
